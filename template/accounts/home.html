@@ -1,0 +1,167 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}Chats{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card rounded-0">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="m-0">Chats</h2>
+                        <div class="dropdown">
+                            <a class="btn btn-sm btn-link text-muted dropdown-toggle-noarrow" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addFriend" href="#"><i class="fas fa-plus mr-2"></i> Agregar</a>
+                                <a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush contact-section">
+                        {% for c in data.chats %}
+                        <li class="list-group-item">
+                            <a href="{% url 'accounts:chat' id=c.user.id %}" style="text-decoration: none;">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/48x48" class="rounded-circle me-3" width="50"
+                                        height="50" alt="Foto de perfil">
+                                    <div class="flex-grow-1 overflow-hidden text-truncate">
+                                        <h5 class="f-name mt-0 mb-0">{{ c.name_save }}</h5>
+                                        <p class="last-msg  mb-0">{% if c.last_message.sender == request.user %}<strong>Tú: </strong>{{c.last_message.message}} {% else %} {{ c.last_message.message }} {% endif %}</p>
+
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card rounded-0">
+                {% if data.recipient %}
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <img src="https://via.placeholder.com/48x48" class="rounded-circle" width="50" height="50"
+                        alt="Foto de perfil">
+                    {% for c in data.chats %}
+                    {% if c.user.id == data.recipient.id %}
+                    <h2 id="name_id" class="card-title me-auto"> <strong>&#160 {{ c.name_save }}</strong></h2>
+                    <div class="dropdown">
+                        <a class="btn btn-sm btn-link text-muted dropdown-toggle-noarrow ms-auto" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+                            {% if c.is_friend %}
+                                <a class="dropdown-item" href="#" id="dataEditFriend" onclick="openModal(event)" data-bs-toggle="modal" data-bs-target="#editFriend" data-name_save="{{ c.name_save }}"><i class="fa-solid fa-pen-to-square"></i> &#160Editar amigo</a>
+                                <a class="dropdown-item" href="{% url 'accounts:delete_friend' id=data.recipient.id %}"><i class="fa-solid fa-user-minus"></i> &#160Eliminar amigo</a>
+                            {% else %}
+                                <a class="dropdown-item" href="#" id="dataAddFriend" onclick="openModal(event)" data-bs-toggle="modal" data-bs-target="#addFriend" data-user-id="{{ data.recipient.id}}"><i class="fas fa-plus mr-2"></i> &#160Agregar a amigos</a>
+                            {% endif %}
+                            <a class="dropdown-item" href="{% url 'accounts:delete_chat' id=data.recipient.id %}"><i class="fa-solid fa-trash"></i> &#160Eliminar chat</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    
+                </div>
+                <div class="card-body mb-3">
+                    <div class="chat-section" id="chat-section">
+                        <ul class="list-unstyled">
+                            {% for m in data.messages %}
+                            <li class="message {% if m.sender == request.user %}sent{% else %}received{% endif %}">
+                                <p class="p-msg">{{m.message}} <small>{{ m.created_at|date:"g:i a" }}<i class="{%if m.is_read %} fas fa-check-circle {% else %} far fa-check-circle {% endif %}"></i></small></p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <hr>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" name="msg" id="msg" placeholder="Escribe tu mensaje aquí" class="form-control shadow-none" autocomplete="off">
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary rounded-0" id="send" type="submit" disabled><i class="far fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="card-body chat-section text-center d-flex justify-content-center align-items-center">
+                    <h1>No hay ningún chat abierto</h1>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    {% for msg in messages %}
+        <div class="position-fixed top-0 end-0 p-3">
+            <div class="toast {% if msg.tags == 'success' %} bg-success {% else %} bg-danger {% endif %} text-white show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body">
+                    <p class="toast-text mb-0">{{ msg }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+
+<div class="modal fade" id="addFriend" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFriendModalLabel">Agregar amigos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'accounts:add_friend' %}" name="friend-form">
+                    {% csrf_token %}
+                    <ul class="form-errors"></ul>
+                    <label for="name_save" class="form-label">Nombre: </label>
+                    <input name="name_save" type="text" class="form-control mb-2" autocomplete="off">
+
+                    <label for="friend" class="form-label">ID: </label>
+                    <input id="friend_modal" name="friend" type="text" class="form-control mb-3" autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if data.recipient %}
+<div class="modal fade" id="editFriend" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Editar amigo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'accounts:edit_friend' id=data.recipient.id %}" method="POST">
+                    {% csrf_token %}
+                    <input id="edit_name_modal" type="text" name="edit_name" class="form-control mb-3" placeholder="">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script src="{% static 'js/home.js' %}"></script>
+
+{% endblock %}

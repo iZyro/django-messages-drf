@@ -1,0 +1,40 @@
+{% extends 'accounts/base.html' %}
+
+{% load static %}
+
+
+{% block title %}Registarse{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Registrarse</h3>
+                {% for message in messages %}
+                    {% if message.tags == "error" %}
+                        <div style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; padding: .475rem .25rem !important;" class="text-center small alert alert-danger">{{message}}</div>
+                    {% else %}
+                        <div style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; padding: .475rem .25rem !important;" class="text-center small alert alert-{{message.tags}}">{{message}}</div>
+                    {% endif %}
+                {% endfor %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar sesión</button>
+                </form>
+                <hr>
+                <p class="text-center mb-0">¿Ya tienes una cuenta? <a href="{% url 'accounts:login' %}">Ingresa aquí</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

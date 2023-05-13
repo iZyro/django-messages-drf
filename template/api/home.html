@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/solar.min.css' %}" rel="stylesheet">
+    <title>API - Página Principal</title>
+</head>
+
+<body>
+    <div class="container fluid">
+        <div class="row">
+            <div class="container mt-5">
+                <h1 class="text-center mb-5">API - Página Principal</h1>
+                <p class="lead text-center">Bienvenido a la API de mi sitio web. Aquí podrás encontrar toda la
+                    información
+                    necesaria para interactuar con mi servicio.</p>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">API Urls</h5>
+                    <hr>
+                    <ul class="list-group">
+                        <li class="list-group-item">http://localhost:8000/api/users/</li>
+                        <li class="list-group-item">http://localhost:8000/api/users/&lt;int:user_id&gt;/</li>
+                        <li class="list-group-item">http://localhost:8000/api/users/&lt;int:user_id&gt;/friends/</li>
+                        <li class="list-group-item">
+                            http://localhost:8000/users/&lt;int:user_id&gt;/api/friends/&lt;int:friend&gt;/</li>
+                        <li class="list-group-item">http://localhost:8000/api/users/&lt;int:user_id&gt;/messages/</li>
+                        <li class="list-group-item">
+                            http://localhost:8000/users/&lt;int:user_id&gt;/api/messages/&lt;int:recipient_id&gt;/</li>
+                        <li class="list-group-item">http://localhost:8000/api/messages/</li>
+                        <li class="list-group-item">http://localhost:8000/api/friends/</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
